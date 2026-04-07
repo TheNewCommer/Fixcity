@@ -318,3 +318,27 @@ def serve_file(filename):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
     app.run(host='0.0.0.0', port=port)
+
+
+@app.route('/api/issues/json', methods=['POST'])
+def create_issue_json():
+    u = current_user()
+    d = request.get_json(force=True) or {}
+    issue = Issue(
+        title=d.get('title', 'Civic Issue'),
+        description=d.get('description', ''),
+        category=d.get('category', 'Other'),
+        urgency=int(d.get('urgency', 5)),
+        lat=float(d.get('lat', 20.5937)),
+        lng=float(d.get('lng', 78.9629)),
+        address=d.get('address', ''),
+        reported_by=u.id if u else None,
+        authority_name=get_authority(d.get('category','Other'), 'name'),
+        authority_phone=get_authority(d.get('category','Other'), 'phone'),
+        authority_email=get_authority(d.get('category','Other'), 'email'),
+    )
+    db.session.add(issue)
+    db.session.flush()
+    log(issue.id, f'Reported by {u.name if u else "Anonymous"}')
+    db.session.commit()
+    return jsonify(issue.to_dict()), 201
