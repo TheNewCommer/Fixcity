@@ -1,6 +1,6 @@
 import axios from 'axios'
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || ''
+  baseURL: 'https://fixcity-f08t.onrender.com'
 })
 api.interceptors.request.use(cfg => {
   const t = localStorage.getItem('fmc_token')
